@@ -13,7 +13,7 @@ class Utility:
 		pairings = [self._all_a_all_a, self._all_a_all_b, self._all_a_tft, self._all_a_not_tft,
 					self._all_b_all_a, self._all_b_all_b, self._all_b_tft, self._all_b_not_tft,
 					self._tft_all_a, self._tft_all_b, self._tft_tft, self._tft_not_tft,
-					self._not_tft_all_a, self._not_tft_all_b, self._not_tft_tft, self.not_tft_not_tft]
+					self._not_tft_all_a, self._not_tft_all_b, self._not_tft_tft, self._not_tft_not_tft]
 
 		players = ['all_a', 'all_b', 'tft', 'not_tft']
 
@@ -67,7 +67,7 @@ class Utility:
 	def _not_tft_all_b(self):
 		return self.r_payoff[0][1] * self.discount / (1. - self.discount) + self.r_payoff[1][1]
 
-	def not_tft_tft(self):
+	def _not_tft_tft(self):
 		return self.r_payoff[1][0] / (1. - self.discount ** 4) + \
 			   self.r_payoff[1][1] * self.discount / (1. - self.discount ** 4) + \
 			   self.r_payoff[0][1] * self.discount ** 2 / (1. - self.discount ** 4) + \
