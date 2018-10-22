@@ -18,7 +18,7 @@ BATTLE_OF_THE_SEXES = [[0, 2], [1, 0]]
 # discount
 DISCOUNT = .95
 
-u = Utility(PRISONERS_DILEMMA, DISCOUNT, PLAYERS)
+u = Utility(STAG_HUNT, DISCOUNT, PLAYERS)
 
 initial_player_percentages = [0, .8, .2, 0, 0]
 
@@ -35,10 +35,14 @@ pop = Population(
 # r = pop.neighborhood_utility_lattice()
 # print(r)
 
-new_pop = pop.imitator_dynamics(pop.neighborhood_utility_lattice())
-print(pop.population)
-print("===========================")
-print(new_pop)
+results = {k: [] for k in PLAYERS}
+for i in range(10):
+    pop.step_with_imitator_dynamics()
+    for player, percent in pop.player_percentages.items():
+        results[player].append(percent)
+
+from pprint import pprint
+pprint(results)
 
 # new_pop = pop.replicator_dynamics(pop.random_utility_lattice(),
 #                                   initial_player_percentages)

@@ -67,7 +67,10 @@ class Population:
                     [self.u.of(player, op) for op in other_players])
         return population_utility.astype(np.float64)
 
-    def imitator_dynamics(self, utility_mat):
+    def step_with_imitator_dynamics(self, utility_mat=None):
+        if utility_mat is None:
+            utility_mat = self.neighborhood_utility_lattice()
+
         new_population = np.copy(self.population)
 
         for row_index in range(self.index_mat.shape[0]):
@@ -108,9 +111,18 @@ class Population:
                 new_population[row_index][
                     col_index] = self.__strategy_at_index(
                         best_neighbor_mat, row_index, col_index)
-        return new_population
+        self.population = new_population
+        return self.population
 
-    def replicator_dynamics(self, utility_mat, player_percentages):
+    def step_with_replicator_dynamics(self,
+                                      utility_mat=None,
+                                      player_percentages=None):
+        if utility_mat is None:
+            utility_mat = self.random_utility_lattice()
+
+        if player_percentages is None:
+            player_percentages = self.player_percentages
+
         pop_utility_means = {
             k: np.mean(utility_mat[self.population == k]) if np.any(
                 self.population == k) else 0.
@@ -130,7 +142,8 @@ class Population:
         for i, player in enumerate(self.players):
             player_percentages[i] += pop_utilities_delta[player]
 
-        return self.__sample_new_population(player_percentages)
+        self.population = self.__sample_new_population(player_percentages)
+        return self.population
 
     def __sample_new_population(self, player_percentages):
         num_players = self.row_size * self.col_size
