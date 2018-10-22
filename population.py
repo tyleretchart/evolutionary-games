@@ -1,5 +1,4 @@
 import numpy as np
-from pprint import pprint
 
 
 class Population:
@@ -28,13 +27,12 @@ class Population:
         self.south_west_index_mat = np.roll(self.south_index_mat, 1, axis=0)
 
     def random_utility_lattice(self):
-        pop_percents = self.__get_population_percentages()
         player_utility = {}
         for p in self.players:
             player_utility[p] = 0
             for opponent in self.players:
                 player_utility[p] += self.u.of(
-                    p, opponent) * pop_percents[opponent]
+                    p, opponent) * self.player_percentages[opponent]
 
         population_utility = np.copy(self.population)
         for p in player_utility.keys():
@@ -113,20 +111,20 @@ class Population:
         return new_population
 
     def replicator_dynamics(self, utility_mat, player_percentages):
-        pop_percentages = self.__get_population_percentages()
         pop_utility_means = {
             k: np.mean(utility_mat[self.population == k]) if np.any(
                 self.population == k) else 0.
-            for k in pop_percentages.keys()
+            for k in self.player_percentages.keys()
         }
 
         u_star = np.sum([
-            mean * pop_percentages[k] for k, mean in pop_utility_means.items()
+            mean * self.player_percentages[k]
+            for k, mean in pop_utility_means.items()
         ])
 
         pop_utilities_delta = {
             k: v * (pop_utility_means[k] - u_star)
-            for k, v in pop_percentages.items()
+            for k, v in self.player_percentages.items()
         }
 
         for i, player in enumerate(self.players):
@@ -143,7 +141,8 @@ class Population:
                 p=player_percentages).tolist() for c in range(self.col_size)
         ])
 
-    def __get_population_percentages(self):
+    @property
+    def player_percentages(self):
         return {
             p: np.sum(p == self.population) / np.size(self.population)
             for p in self.players
@@ -155,4 +154,6 @@ class Population:
 
     def __score_at_index(self, mat, utility_mat, row_index, col_index):
         index = mat[row_index][col_index]
+        return utility_mat[index[0]][index[1]]
+        return utility_mat[index[0]][index[1]]
         return utility_mat[index[0]][index[1]]
