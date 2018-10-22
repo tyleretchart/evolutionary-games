@@ -133,13 +133,21 @@ class Population:
         return self.__sample_new_population(player_percentages)
 
     def __sample_new_population(self, player_percentages):
-        return np.array([
-            np.random.choice(
-                a=self.players,
-                size=self.row_size,
-                replace=True,
-                p=player_percentages).tolist() for c in range(self.col_size)
-        ])
+        num_players = self.row_size * self.col_size
+        num_strat = [
+            int(num_players * percent) for percent in player_percentages
+        ]
+
+        population = []
+        for i, p in enumerate(self.players):
+            population.extend([p] * num_strat[i])
+
+        # TODO: be more flexible
+        assert len(population) == num_players
+
+        population = np.array(population)
+        np.random.shuffle(population)
+        return population.reshape((self.row_size, self.col_size))
 
     @property
     def player_percentages(self):
@@ -154,6 +162,4 @@ class Population:
 
     def __score_at_index(self, mat, utility_mat, row_index, col_index):
         index = mat[row_index][col_index]
-        return utility_mat[index[0]][index[1]]
-        return utility_mat[index[0]][index[1]]
         return utility_mat[index[0]][index[1]]
