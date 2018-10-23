@@ -1,3 +1,5 @@
+import math
+
 import numpy as np
 
 
@@ -116,7 +118,8 @@ class Population:
 
     def step_with_replicator_dynamics(self,
                                       utility_mat=None,
-                                      player_percentages=None):
+                                      player_percentages=None,
+                                      lr=.001):
         if utility_mat is None:
             utility_mat = self.random_utility_lattice()
 
@@ -139,27 +142,27 @@ class Population:
             for k, v in self.player_percentages.items()
         }
 
-        for i, player in enumerate(self.players):
-            player_percentages[i] += pop_utilities_delta[player]
+        new_player_percentages = [
+            player_percentages[player] + lr * pop_utilities_delta[player]
+            for player in self.players
+        ]
 
-        self.population = self.__sample_new_population(player_percentages)
+        self.population = self.__sample_new_population(new_player_percentages)
         return self.population
 
     def __sample_new_population(self, player_percentages):
         num_players = self.row_size * self.col_size
         num_strat = [
-            int(num_players * percent) for percent in player_percentages
+            math.ceil(num_players * percent) for percent in player_percentages
         ]
 
         population = []
         for i, p in enumerate(self.players):
             population.extend([p] * num_strat[i])
 
-        # TODO: be more flexible
-        assert len(population) == num_players
-
         population = np.array(population)
         np.random.shuffle(population)
+        population = population[:self.row_size * self.col_size]
         return population.reshape((self.row_size, self.col_size))
 
     @property
