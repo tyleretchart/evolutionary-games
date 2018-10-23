@@ -15,8 +15,8 @@ class Population:
 
         self.population = self.__sample_new_population(player_percentages)
 
-        self.index_mat = np.array(
-            [[(r, c) for c in range(5)] for r in range(5)])
+        self.index_mat = np.array([[(r, c) for c in range(self.col_size)]
+                                   for r in range(self.row_size)])
         self.west_index_mat = np.roll(self.index_mat, 1, axis=0)
         self.east_index_mat = np.roll(self.index_mat, -1, axis=0)
         self.north_index_mat = np.roll(self.index_mat, 1, axis=1)
