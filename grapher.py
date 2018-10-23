@@ -1,15 +1,20 @@
-import matplotlib.pyplot as plt 
-import numpy as np 
+import matplotlib.pyplot as plt
+from matplotlib.ticker import MaxNLocator
 
 
-def graph_percentages(percentages_dict, title=''):
-	for key in percentages_dict:
-		plt.plot(percentages_dict[key])
-	plt.title(title)
-	plt.xlabel('Iterations')
-	plt.ylabel('Population Percentage')
-	plt.legend(percentages_dict)
-	plt.show()
+def graph_percentages(percentages_dict, title=None):
+    fig, ax = plt.subplots()
+    for key in percentages_dict:
+        ax.plot(percentages_dict[key])
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+    if title:
+        plt.title(title)
+    plt.xlabel('Iterations')
+    plt.ylabel('Population Percentage')
+    plt.legend(percentages_dict)
+    plt.show()
+
+
 """
 test = {
   'all_a': [0.1, 0.15, 0.1, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
