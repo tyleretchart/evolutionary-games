@@ -14,7 +14,7 @@ GAMES = {
 
 
 def run(dynamic='replicator',
-        game=GAMES['prisoners_dilemma'],
+        game='prisoners_dilemma',
         percents=[.25, .25, .25, .25],
         agents=['all_a', 'all_b', 'tft', 'not_tft'],
         trials=50,
@@ -34,7 +34,7 @@ def run(dynamic='replicator',
             for k in agents
         }
 
-        u = Utility(game, beta, agents)
+        u = Utility(GAMES[game], beta, agents)
 
         pop = Population(
             players=agents,
