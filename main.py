@@ -2,6 +2,8 @@ import argparse
 import collections
 import json
 
+import numpy as np
+
 import grapher
 from population import Population
 from utility import Utility
@@ -23,7 +25,11 @@ def run(dynamic='replicator',
         round_to=5,
         lr=.001,
         row_size=30,
-        col_size=30):
+        col_size=30,
+        random=False):
+    if random:
+        percents = np.random.uniform(size=len(agents))
+        percents /= np.sum(percents)
     params = locals()
 
     results = []
@@ -63,10 +69,12 @@ def run(dynamic='replicator',
 
     params_to_save = {
         k: v
-        for k, v in params.items()
-        if k not in ('row_size', 'col_size', 'lr', 'round_to', 'window')
+        for k, v in params.items() if k not in ('row_size', 'col_size', 'lr',
+                                                'round_to', 'window', 'random')
     }
-
+    # to shorten the filename...
+    params_to_save['percents'] = np.round(
+        params_to_save['percents'], decimals=2).tolist()
     grapher.graph_percentages(results,
                               f'results/{json.dumps(params_to_save)}.png')
 
@@ -85,7 +93,7 @@ if __name__ == '__main__':
     parser.add_argument('-l', '--lr', type=float)
     parser.add_argument('-r', '--row-size', type=float)
     parser.add_argument('-c', '--col-size', type=float)
+    parser.add_argument('--random', action='store_true')
 
     args = parser.parse_args()
-
     run(**{k: v for k, v in dict(vars(args)).items() if v is not None})
