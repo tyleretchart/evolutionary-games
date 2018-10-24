@@ -1,49 +1,84 @@
+import argparse
 import collections
+import json
 
 import grapher
 from population import Population
 from utility import Utility
 
-# players
-PLAYERS = ['all_a', 'all_b', 'tft', 'not_tft']
+GAMES = {
+    'prisoners_dilemma': [[3, 1], [5, 2]],
+    'stag_hunt': [[4, 3], [0, 3]],
+    'battle_of_the_sexes': [[0, 2], [1, 0]],
+}
 
-# games
-PRISONERS_DILEMMA = [[3, 1], [5, 2]]
-STAG_HUNT = [[4, 3], [0, 3]]
-BATTLE_OF_THE_SEXES = [[0, 2], [1, 0]]
 
-DISCOUNT = .95
-DISCOUNT = .97
-# DISCOUNT = .99
+def run(dynamic='replicator',
+        game=GAMES['prisoners_dilemma'],
+        percents=[.25, .25, .25, .25],
+        agents=['all_a', 'all_b', 'tft', 'not_tft'],
+        trials=50,
+        beta=.99,
+        window=10,
+        round_to=5,
+        lr=.001,
+        row_size=30,
+        col_size=30):
+    params = locals()
 
-u = Utility(PRISONERS_DILEMMA, DISCOUNT, PLAYERS)
+    results = []
+    for _ in range(trials):
+        result = {k: [] for k in agents}
+        histories = {
+            k: collections.deque(range(window), maxlen=window)
+            for k in agents
+        }
 
-initial_player_percentages = [.25, .25, .25, .25]
+        u = Utility(game, beta, agents)
 
-pop = Population(
-    players=PLAYERS,
-    player_percentages=initial_player_percentages,
-    u=u,
-    row_size=300,
-    col_size=300)
+        pop = Population(
+            players=agents,
+            player_percentages=percents,
+            u=u,
+            row_size=row_size,
+            col_size=col_size)
 
-results = {k: [] for k in PLAYERS}
-maxlen = 10
-histories = {k: collections.deque(range(maxlen), maxlen) for k in PLAYERS}
-while True:
-    for player, percent in pop.player_percentages.items():
-        results[player].append(percent)
-        histories[player].append(percent)
+        while True:
+            for player, percent in pop.player_percentages.items():
+                result[player].append(percent)
+                histories[player].append(percent)
 
-    should_continue = False
-    for history in histories.values():
-        if len(set(round(h, 6) for h in history)) > 1:
-            should_continue = True
-            break
+            should_continue = False
+            for history in histories.values():
+                if len(set(round(h, round_to) for h in history)) > 1:
+                    should_continue = True
+                    break
 
-    if not should_continue:
-        break
+            if not should_continue:
+                break
 
-    pop.step_with_replicator_dynamics(lr=.001)
+            getattr(pop, f'step_with_{dynamic}_dynamics')(lr=lr)
 
-grapher.graph_percentages(results)
+        results.append(result)
+
+    grapher.graph_percentages(results, f'results/{json.dumps(params)}.png')
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument('-d', '--dynamic', type=str)
+    parser.add_argument('-g', '--game', type=str)
+    parser.add_argument('-p', '--percents', type=float, nargs='+')
+    parser.add_argument('-a', '--agents', type=str, nargs='+')
+    parser.add_argument('-t', '--trials', type=int)
+    parser.add_argument('-b', '--beta', type=float)
+    parser.add_argument('-w', '--window', type=int)
+    parser.add_argument('--round-to', type=float)
+    parser.add_argument('-l', '--lr', type=float)
+    parser.add_argument('-r', '--row-size', type=float)
+    parser.add_argument('-c', '--col-size', type=float)
+
+    args = parser.parse_args()
+
+    run(**{k: v for k, v in dict(vars(args)).items() if v is not None})

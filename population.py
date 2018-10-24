@@ -69,7 +69,7 @@ class Population:
                     [self.u.of(player, op) for op in other_players])
         return population_utility.astype(np.float64)
 
-    def step_with_imitator_dynamics(self, utility_mat=None):
+    def step_with_imitator_dynamics(self, lr=0, utility_mat=None):
         if utility_mat is None:
             utility_mat = self.neighborhood_utility_lattice()
 
