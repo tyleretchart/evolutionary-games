@@ -61,7 +61,14 @@ def run(dynamic='replicator',
 
         results.append(result)
 
-    grapher.graph_percentages(results, f'results/{json.dumps(params)}.png')
+    params_to_save = {
+        k: v
+        for k, v in params.items()
+        if k not in ('row_size', 'col_size', 'lr', 'round_to', 'window')
+    }
+
+    grapher.graph_percentages(results,
+                              f'results/{json.dumps(params_to_save)}.png')
 
 
 if __name__ == '__main__':
