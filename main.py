@@ -74,7 +74,7 @@ if __name__ == '__main__':
     parser.add_argument('-t', '--trials', type=int)
     parser.add_argument('-b', '--beta', type=float)
     parser.add_argument('-w', '--window', type=int)
-    parser.add_argument('--round-to', type=float)
+    parser.add_argument('--round-to', type=int)
     parser.add_argument('-l', '--lr', type=float)
     parser.add_argument('-r', '--row-size', type=float)
     parser.add_argument('-c', '--col-size', type=float)
